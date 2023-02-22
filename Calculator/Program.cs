@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 string input = Console.ReadLine();
 string b = "";
