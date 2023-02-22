@@ -97,3 +97,20 @@ foreach (var item in queue)
 {
     Console.Write(item + "");
 }
+
+// =============================================================
+
+Stack stack2 = new Stack();
+foreach (var item in queue)
+{
+    if (!(item == "+" || item == "-" || item == "*" || item == "/"))
+    {
+        stack2.Push(item);
+        int firstresult =  Convert.ToInt32(item);
+    }
+    else if (item == "+" || item == "-" || item == "*" || item == "/")
+    {
+        stack2.Pop();
+        
+    }
+}
