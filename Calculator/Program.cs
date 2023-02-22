@@ -1,43 +1,112 @@
-﻿string input = Console.ReadLine();  // зчитує input
-string b = ""; // створюємо порожній буфер куди будуть вноситись тєкущі токени 
-string[] result = new String[50]; // створюємо list з максимум 50 символами куди вносяться усі токени
-int index = 0; // починаємо з індекса нуль
-// char 'd' одиничний символ, нам буде повертатися після foreach
-// "d" string 
-foreach (var x in input)   // для кожного x елемента у input який ввів користувач 
-{
-    if (Char.IsDigit(x)) // якщо char елемент це число 
-    {
-        b += x; // додаємо x до буферу 
-    }
-    else if (Char.IsWhiteSpace(x)) // якщо x це пробіл
-    {
-        if (b != "") // якщо b не пустий, то він додається до result
-        {
-            result[index] = b; // додаємо в список result з індексом який спочатку є нулем b 
-            b = ""; // опустошаємо наш буфер 
-            index += 1; // в наступний раз у нас індекс збільшиться на 1
-        }
-    }
-    else if (x == '(' || x == ')' || x == '+' || x == '-' || x == '*' || x == '/')
-    {
-        if (b != "")
-        {
-            result[index] = b; // додаємо в список result з індексом який спочатку є нулем b 
-            b = "";
-            index += 1;
-        }
-        result[index] = x.ToString(); // переводимо x з char на string 
-        index += 1;
-    }
-}
+﻿using System;
+using System.Collections.Generic;
 
-if (b != "")  // додає останній токен якщо він не є порожнім
+class Program
 {
-    result[index] = b;
-}
+    static bool IsOperator(char c)
+    {
+        return (c == '+' || c == '-' || c == '*' || c == '/');
+    }
 
-foreach (string x in result)
-{
-    Console.WriteLine(x);
+    static bool IsDigit(char c)
+    {
+        return (c >= '0' && c <= '9');
+    }
+
+    static int Precedence(char op)
+    {
+        if (op == '+' || op == '-')
+        {
+            return 1;
+        }
+        if (op == '*' || op == '/')
+        {
+            return 2;
+        }
+        return 0;
+    }
+
+    static string InfixToRPN(string infix)
+    {
+        string rpn = "";
+        Stack<char> opStack = new Stack<char>();
+        foreach (char c in infix)
+        {
+            if (IsDigit(c))
+            {
+                rpn += c;
+            }
+            else if (c == '(')
+            {
+                opStack.Push(c);
+            }
+            else if (c == ')')
+            {
+                while (opStack.Count > 0 && opStack.Peek() != '(')
+                {
+                    rpn += opStack.Pop();
+                }
+                if (opStack.Count > 0 && opStack.Peek() == '(')
+                {
+                    opStack.Pop();
+                }
+            }
+            else if (IsOperator(c))
+            {
+                while (opStack.Count > 0 && Precedence(opStack.Peek()) >= Precedence(c))
+                {
+                    rpn += opStack.Pop();
+                }
+                opStack.Push(c);
+            }
+        }
+        while (opStack.Count > 0)
+        {
+            rpn += opStack.Pop();
+        }
+        return rpn;
+    }
+
+    static int EvaluateRPN(string rpn)
+    {
+        Stack<int> operandStack = new Stack<int>();
+        foreach (char c in rpn)
+        {
+            if (IsDigit(c))
+            {
+                operandStack.Push(c - '0');
+            }
+            else if (IsOperator(c))
+            {
+                int b = operandStack.Pop();
+                int a = operandStack.Pop();
+                switch (c)
+                {
+                    case '+': operandStack.Push(a + b); break;
+                    case '-': operandStack.Push(a - b); break;
+                    case '*': operandStack.Push(a * b); break;
+                    case '/': operandStack.Push(a / b); break;
+                }
+            }
+        }
+        return operandStack.Pop();
+    }
+
+    static void Main(string[] args)
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        string expression;
+        if (args.Length > 0)
+        {
+            expression = args[0];
+        }
+        else
+        {
+            Console.Write("Введіть арифметичний вираз: ");
+            expression = Console.ReadLine();
+        }
+        string rpn = InfixToRPN(expression);
+        int result = EvaluateRPN(rpn);
+        Console.WriteLine(result);
+    }
 }
