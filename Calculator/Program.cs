@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 string input = Console.ReadLine();
@@ -38,8 +39,8 @@ if (b != "")
     result[index] = b;
 }
 
-Queue queue = new Queue();
-Stack stack = new Stack();
+Queue<string> queue = new Queue<string>();
+Stack<string> stack = new Stack<string>();
 int priority = 0;
 
 foreach (string x in result)
@@ -75,7 +76,7 @@ foreach (string x in result)
             {
                 lastPriority = 0;
             }
-            else if (lastOperator == "*" || lastOperator == "/")
+            else if (lastOperator == "*"||lastOperator == "/")
             {
                 lastPriority = 1;
             }
@@ -117,7 +118,44 @@ while (stack.Count > 0)
     queue.Enqueue(lastOperator);
 }
 
+Stack evaluationStack = new Stack();
 foreach (var item in queue)
 {
-    Console.Write(item + " ");
+    if (item is null)
+    {
+        continue;
+    }
+    if (item == "+"||item == "-"||item == "*"||item == "/"||item == "^")
+    {
+        double operand2 = double.Parse(evaluationStack.Pop().ToString());
+        double operand1 = double.Parse(evaluationStack.Pop().ToString());
+        double resultValue = 0;
+        if (item == "+")
+        {
+            resultValue = operand1 + operand2;
+        }
+        else if (item == "-")
+        {
+            resultValue = operand1 - operand2;
+        }
+        else if (item == "*")
+            resultValue = operand1 * operand2;
+        else if (item == "/")
+            resultValue = operand1 / operand2;
+        else if (item == "^")
+        {
+            resultValue = Math.Pow(operand1, operand2);
+        }
+
+        evaluationStack.Push(resultValue);
+    }
+    else if (!(item == "+"||item == "-"||item == "*"||item == "/" || item == "^"))
+    {
+        double value = double.Parse(item); // метод double.Parse() для перетворення цього рядка у тип даних double.
+        // Цей метод дуже корисний для роботи з рядками, які містять числа, коли необхідно провести обчислення з цими числами.
+        evaluationStack.Push(value);
+    }
 }
+
+double finalResult = double.Parse(evaluationStack.Pop().ToString());
+Console.WriteLine(finalResult);
